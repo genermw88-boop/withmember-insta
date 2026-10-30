@@ -8,7 +8,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# 깔끔하고 세련된 UI 스타일 적용 (입력창 및 가독성 오류 해결)
+# 깔끔하고 세련된 UI 스타일 적용
 st.markdown("""
     <style>
     .stTextInput>div>div>input {
@@ -48,11 +48,11 @@ except Exception:
 with st.form(key="instagram_form"):
     col1, col2 = st.columns(2)
     with col1:
-        store_name = st.text_input("매장명", placeholder="예: 온도네일스튜디오")
-        region = st.text_input("지역명", placeholder="예: 세종 반곡동")
+        store_name = st.text_input("매장명", placeholder="예: 통큰솥뚜껑닭볶음탕 광양중동점")
+        region = st.text_input("지역명", placeholder="예: 전남 광양시 중동")
     with col2:
-        business_type = st.text_input("업종", placeholder="예: 네일아트")
-        target_audience = st.text_input("타겟층 (선택사항)", placeholder="예: 트렌디한 2030 여성")
+        business_type = st.text_input("업종", placeholder="예: 닭볶음탕")
+        target_audience = st.text_input("타겟층 (선택사항)", placeholder="예: 데이트 코스 찾는 연인들")
 
     submit_button = st.form_submit_button(label="✨ 최적화 원고 생성하기")
 
@@ -77,19 +77,23 @@ if submit_button:
                 - 업종: {business_type}
                 - 타겟층: {target_audience if target_audience else '일반 방문객'}
 
-                [작성 가이드라인]
-                1. **첫 문장 (후킹 문구)**: 사용자가 피드를 내리다가 멈추도록 시선을 사로잡는 강력한 후킹 문구를 최상단에 배치하세요. (지역명 + 업종 키워드 자연스럽게 포함)
-                2. **본문 구성**: 매장의 매력 포인트, 방문해야 하는 이유, 이벤트나 서비스 특징을 가독성 있게 이모지와 함께 작성하세요.
-                3. **콜 투 액션 (CTA)**: 프로필 링크 클릭, 예약, 방문 유도를 위한 문구를 포함하세요.
-                4. **해시태그**: 지역 키워드, 업종 키워드, 인스타 인기 태그를 조합하여 **최소 10개 이상** 엄선해 주세요.
+                [작성 가이드라인 및 형식 지정]
+                반드시 아래의 양식과 흐름에 맞춰서 작성해주세요. 마크다운 코드 블록(``` 등)은 결과에 포함하지 마세요.
 
-                ※ 주의: 결과물에 ```markdown 같은 코드 블록 기호는 절대 넣지 말고, 순수 마케팅 텍스트만 출력해주세요.
+                (첫 줄: 이모지와 함께 시선을 사로잡는 강력한 후킹 문구 및 매장 소개)
+                (중간: 매장의 매력 포인트, 방문해야 하는 이유를 이모지와 함께 가독성 있게 작성)
+                (하단: 📍 위치: {region} ({store_name}))
+                (CTA: 📌 지금 바로 프로필 링크 확인하시고 방문 예약·문의해보세요!)
+                (해시태그: #️⃣ [추천 해시태그 (10개)] 형태로 하단에 나열)
+
+                [해시태그 규칙]
+                매장명 키워드, 지역명 키워드, 업종 키워드, 인스타 인기 태그를 조합하여 정확히 10개를 공백으로 구분해 한 줄로 작성해주세요.
                 """
 
                 response = client.chat.completions.create(
                     model="gpt-4o",
                     messages=[
-                        {"role": "system", "content": "당신은 전문 소셜미디어 마케터입니다. 코드 블록 기호 없이 깔끔하게 텍스트를 출력하세요."},
+                        {"role": "system", "content": "당신은 전문 소셜미디어 마케터입니다. 지정된 형식에 맞춰 깔끔하게 텍스트만 출력하세요."},
                         {"role": "user", "content": prompt}
                     ],
                     temperature=0.7,
@@ -100,10 +104,10 @@ if submit_button:
                 # 혹시 포함된 마크다운 백틱 제거
                 result_text = result_text.replace("```markdown", "").replace("```", "").strip()
 
-                # 결과 출력 (Streamlit 기본 컨테이너를 사용하여 글씨 깨짐 방지)
+                # 결과 출력 (복사하기 버튼이 포함된 코드박스 형태로 제공하여 인스타에 바로 붙여넣기 용이하도록 함)
                 st.success("🎉 원고 생성이 완료되었습니다!")
-                st.markdown("### 📝 생성된 인스타그램 원고")
-                st.info(result_text)
+                st.markdown("### 📝 생성된 인스타그램 원고 (우측 상단 복사 버튼을 누르세요)")
+                st.code(result_text, language="text")
 
             except Exception as e:
                 st.error(f"❌ 오류가 발생했습니다: {e}")
