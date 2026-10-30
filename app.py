@@ -51,7 +51,7 @@ st.markdown("""
 
 # 헤더 영역
 st.markdown("<h2 style='text-align: center; color: #AA771C;'>📸 인스타그램 피드 원고 & 해시태그 생성기</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #666666;'>매장명, 지역명, 업종만 입력하면 최상단 노출 최적화 방문 후기 원고가 완성됩니다.</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #666666;'>매장명, 지역명, 키워드만 입력하면 최상단 노출 최적화 방문 후기 원고가 완성됩니다.</p>", unsafe_allow_html=True)
 st.markdown("---")
 
 # 안전하게 Streamlit Secrets에서 API 키 가져오기
@@ -64,10 +64,11 @@ except Exception:
 with st.form(key="instagram_form"):
     col1, col2 = st.columns(2)
     with col1:
-        store_name = st.text_input("매장명", placeholder="예: 통큰솥뚜껑닭볶음탕 광양중동점")
-        region = st.text_input("지역명", placeholder="예: 전남 광양시 중동")
+        store_name = st.text_input("매장명", placeholder="예: 캐치업왁싱 여의도점")
+        region = st.text_input("지역명", placeholder="예: 서울 영등포구 여의도동")
     with col2:
-        business_type = st.text_input("업종", placeholder="예: 닭볶음탕")
+        # 요청하신 대로 '업종'을 '키워드'로 변경
+        business_type = st.text_input("키워드", placeholder="예: 당산왁싱, 영등포왁싱, 여의도왁싱")
         target_audience = st.text_input("타겟층 (선택사항)", placeholder="예: 데이트 코스 찾는 연인들")
 
     submit_button = st.form_submit_button(label="✨ 최적화 후기 원고 생성하기")
@@ -77,7 +78,7 @@ if submit_button:
     if not OPENAI_API_KEY:
         st.error("⚠️ Streamlit Cloud 설정(Secrets)에 OpenAI API 키가 등록되지 않았습니다.")
     elif not store_name or not region or not business_type:
-        st.warning("⚠️ 매장명, 지역명, 업종은 필수 입력 항목입니다.")
+        st.warning("⚠️ 매장명, 지역명, 키워드는 필수 입력 항목입니다.")
     else:
         with st.spinner("🤖 인스타그램 알고리즘 최상단 노출 방문 후기 원고를 작성 중입니다..."):
             try:
@@ -90,17 +91,17 @@ if submit_button:
                 [입력 정보]
                 - 매장명: {store_name}
                 - 지역명: {region}
-                - 업종: {business_type}
+                - 키워드: {business_type}
                 - 타겟층: {target_audience if target_audience else '일반 방문객'}
 
                 [작성 가이드라인 및 형식 지정]
                 반드시 아래의 양식과 톤앤매너에 맞춰서 작성해주세요. 마크다운 코드 블록(``` 등)은 결과에 절대 포함하지 마세요.
 
                 1. **관점**: 매장 입장이 아니라, **"직접 방문해보고 반해서 남기는 솔직한 후기"** 톤으로 작성할 것 ("~에 다녀왔어요!", "~추천해요!" 등 소비자 시점 사용)
-                2. **첫 문장 (후킹 문구)**: 피드를 내리다 멈추게 만드는 감탄사나 궁금증을 유발하는 문구 + 지역명/업종 포함
-                3. **본문 구성**: 매장 분위기, 메뉴나 서비스의 맛과 장점, 친절함 등을 생생한 이모지와 함께 가독성 있게 작성
+                2. **첫 문장 (후킹 문구)**: 피드를 내리다 멈추게 만드는 감탄사나 궁금증을 유발하는 문구 + 입력된 키워드와 지역명을 자연스럽게 녹여낼 것
+                3. **본문 구성**: 매장 분위기, 메뉴나 서비스의 맛/품질과 장점, 친절함 등을 생생한 이모지와 함께 가독성 있게 작성
                 4. **위치 안내**: 📍 위치: {region} ({store_name})
-                5. **해시태그**: #️⃣ [추천 해시태그 (10개)] 형태로 하단에 나열 (매장명, 지역명, 업종, 인스타 인기 태그 조합)
+                5. **해시태그**: #️⃣ [추천 해시태그 (10개)] 형태로 하단에 나열 (입력된 키워드, 지역명, 인스타 인기 태그 조합)
 
                 순수 텍스트만 출력하세요.
                 """
