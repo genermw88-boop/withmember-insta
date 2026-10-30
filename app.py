@@ -21,10 +21,6 @@ st.markdown("""
         border: 1px solid #333333;
         border-radius: 8px;
     }
-    .stSelectbox>div>div>select {
-        background-color: #1E1E1E;
-        color: #FFFFFF;
-    }
     .stButton>button {
         background: linear-gradient(135deg, #D4AF37 0%, #AA771C 100%);
         color: #000000;
@@ -52,36 +48,38 @@ st.markdown("<h2 style='text-align: center; color: #D4AF37;'>📸 인스타그�
 st.markdown("<p style='text-align: center; color: #888888;'>매장명, 지역명, 업종만 입력하면 최상단 노출 최적화 원고가 완성됩니다.</p>", unsafe_allow_html=True)
 st.markdown("---")
 
-# API 키 입력 (사이드바 또는 메인 입력)
-st.sidebar.header("🔑 설정")
-api_key_input = st.sidebar.text_input("OpenAI API 키를 입력하세요", type="password")
+# 안전하게 Streamlit Secrets에서 API 키 가져오기 시도
+try:
+    OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+except Exception:
+    OPENAI_API_KEY = ""
 
 # 입력 폼
 with st.form(key="instagram_form"):
     col1, col2 = st.columns(2)
     with col1:
-        store_name = st.text_input("매장명", placeholder="예: 부평 파스타 맛집")
-        region = st.text_input("지역명", placeholder="예: 인천 부평구")
+        store_name = st.text_input("매장명", placeholder="예: 통큰솥뚜껑닭볶음탕 광양중동점")
+        region = st.text_input("지역명", placeholder="예: 전남 광양시 중동")
     with col2:
-        business_type = st.text_input("업종", placeholder="예: 이탈리안 레스토랑")
+        business_type = st.text_input("업종", placeholder="예: 닭볶음탕")
         target_audience = st.text_input("타겟층 (선택사항)", placeholder="예: 데이트 코스 찾는 연인들")
 
     submit_button = st.form_submit_button(label="✨ 최적화 원고 생성하기")
 
 # 생성 로직
 if submit_button:
-    if not api_key_input:
-        st.error("⚠️ OpenAI API 키를 사이드바에 입력해주세요.")
+    if not OPENAI_API_KEY:
+        st.error("⚠️ Streamlit Cloud 설정(Secrets)에 OpenAI API 키가 등록되지 않았습니다.")
     elif not store_name or not region or not business_type:
         st.warning("⚠️ 매장명, 지역명, 업종은 필수 입력 항목입니다.")
     else:
         with st.spinner("🤖 인스타그램 알고리즘 최상단 노출 원고를 작성 중입니다..."):
             try:
-                client = OpenAI(api_key=api_key_input)
+                client = OpenAI(api_key=OPENAI_API_KEY)
                 
                 prompt = f"""
                 당신은 인스타그램 SEO 전문가이자 소상공인 마케팅 전문가입니다.
-                아래 정보를 바탕으로 인스타그램 피드 게시물에 사용할 최상단 노출 최적화 원고와 해시태그를 작성해주세요.
+                아래 정보를 바탕으로 인스타그램 피드 게시물에 사용할 최상단 노출 최적화 원고와 해시테그를 작성해주세요.
 
                 [입력 정보]
                 - 매장명: {store_name}
