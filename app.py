@@ -8,7 +8,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# 깔끔하고 세련된 UI 스타일 적용
+# 세련된 UI 스타일 및 결과 카드 박스 CSS 적용
 st.markdown("""
     <style>
     .stTextInput>div>div>input {
@@ -29,6 +29,22 @@ st.markdown("""
     .stButton>button:hover {
         background: linear-gradient(135deg, #F3E5AB 0%, #D4AF37 100%);
         color: #000000;
+    }
+    /* 인스타 피드 스타일을 살린 고급스러운 카드 박스 */
+    .insta-card {
+        background-color: #FAFAFA;
+        border: 1px solid #E0E0E0;
+        border-left: 4px solid #D4AF37;
+        padding: 24px;
+        border-radius: 12px;
+        color: #262626;
+        font-size: 15px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-all;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-top: 15px;
+        margin-bottom: 20px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -78,7 +94,7 @@ if submit_button:
                 - 타겟층: {target_audience if target_audience else '일반 방문객'}
 
                 [작성 가이드라인 및 형식 지정]
-                반드시 아래의 양식과 톤앤매너에 맞춰서 작성해주세요. 마크다운 코드 블록(``` 등)은 결과에 포함하지 마세요.
+                반드시 아래의 양식과 톤앤매너에 맞춰서 작성해주세요. 마크다운 코드 블록(``` 등)은 결과에 절대 포함하지 마세요.
 
                 1. **관점**: 매장 입장이 아니라, **"직접 방문해보고 반해서 남기는 솔직한 후기"** 톤으로 작성할 것 ("~에 다녀왔어요!", "~추천해요!" 등 소비자 시점 사용)
                 2. **첫 문장 (후킹 문구)**: 피드를 내리다 멈추게 만드는 감탄사나 궁금증을 유발하는 문구 + 지역명/업종 포함
@@ -103,10 +119,12 @@ if submit_button:
                 # 혹시 포함된 마크다운 백틱 제거
                 result_text = result_text.replace("```markdown", "").replace("```", "").strip()
 
-                # 결과 출력
+                # 결과 출력 (예쁜 카드 박스 형태로 렌더링)
                 st.success("🎉 방문 후기 원고 생성이 완료되었습니다!")
-                st.markdown("### 📝 생성된 인스타그램 후기 원고 (우측 상단 복사 버튼을 누르세요)")
-                st.code(result_text, language="text")
+                st.markdown("### 📝 생성된 인스타그램 후기 원고")
+                
+                # HTML div 박스를 이용해 깔끔하게 출력
+                st.markdown(f'<div class="insta-card">{result_text}</div>', unsafe_allow_html=True)
 
             except Exception as e:
                 st.error(f"❌ 오류가 발생했습니다: {e}")
